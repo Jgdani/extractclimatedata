@@ -1,0 +1,47 @@
+################ extrair dados climáticos ##############
+library(sp)
+library(rgdal)
+library(sf)
+library(raster)
+library(dplyr)
+library(ggplot2)
+library(maptools)
+library(rgeos)
+
+
+geo0<-read.csv("C:/Users/Julia/Documents/analises_sisyrinchium/RDA/coordvag.csv" , sep=",", dec=",")
+geo <- setNames(as.data.frame(geo0), c('x', 'y'))
+
+
+geo0x<-as.numeric(as.matrix(geo0[1]))
+geo0y<-as.numeric(as.matrix(geo0[2]))
+coord <- cbind(geo0x, geo0y)
+coord<-as.data.frame(coord)
+coordinates(coord)<-c("geo0x","geo0y")
+
+
+
+#vamos ler os arquivos de cada variÃ¡vel
+temp_med_anual <- raster("wc2.1_2.5m_tavg_12.tif")
+plot (temp_med_anual)
+
+temp_max <- raster("wc2.1_2.5m_tmax_12.tif")
+plot (temp_max)
+
+temp_min <- raster ("wc2.1_2.5m_tmin_12.tif")
+plot (temp_min)
+
+rad <- raster ("wc2.1_2.5m_srad_12.tif")
+plot (rad)
+
+precip_an<- raster("wc2.1_2.5m_prec_12.tif")
+plot (precip_an)
+
+#criando um arquivo com todas as variaveis anteriores
+dadosbioclim <- stack(temp_med_anual, temp_max, temp_min, rad, precip_an)
+plot(dadosbioclim)
+
+
+
+extract(dadosbioclim, coordinates(coord)) -> clim.dat
+write.csv(clim.dat, "Coordvag22.csv" )
